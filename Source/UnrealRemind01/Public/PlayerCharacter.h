@@ -18,6 +18,14 @@ class UNREALREMIND01_API APlayerCharacter : public ACharacter
 public:
 	APlayerCharacter();
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
+	float MaxHealth;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
+	float Health;
+	float GetHealth() const;
+	UFUNCTION(BlueprintCallable, Category = "Health")
+	void AddHealth(float Amount);
+	
 	//컴포넌트
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	USpringArmComponent* SpringArmComp;
@@ -34,6 +42,12 @@ public:
 
 	//입력 바인딩
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual float TakeDamage(
+		float DamageAmount,
+		struct FDamageEvent const& DamageEvent,
+		AController* EventInstigator,
+		AActor* DamageCauser)override;
+	
 	UFUNCTION()
 	void Move(const FInputActionValue& value);
 	UFUNCTION()
@@ -46,4 +60,8 @@ public:
 	void StartSprint(const FInputActionValue& value);
 	UFUNCTION()
 	void StopSprint(const FInputActionValue& value);
+	
+	void OnDeath();
+
+
 };

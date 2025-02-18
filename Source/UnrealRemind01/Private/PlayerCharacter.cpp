@@ -29,6 +29,9 @@ APlayerCharacter::APlayerCharacter()
 	SprintMultiplier = 1.7f;
 	SprintSpeed = NormalSpeed * SprintMultiplier;
 
+	MaxHealth = 100.0f;
+	Health = MaxHealth;
+
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -98,6 +101,18 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 }
 
+float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	Health = FMath::Clamp(Health - DamageAmount, 0.0f, MaxHealth);
+
+	if (Health <= 0.0f)
+	{
+		OnDeath();
+	}
+	return ActualDamage;
+}
+
 void APlayerCharacter::Move(const FInputActionValue& value)
 {
 	if (!Controller)return;//컨트롤러 없으면 일 암함
@@ -157,4 +172,18 @@ void APlayerCharacter::StopSprint(const FInputActionValue& value)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
 	}
+}
+
+void APlayerCharacter::OnDeath()
+{
+}
+
+float APlayerCharacter::GetHealth() const
+{
+	return Health;
+}
+
+void APlayerCharacter::AddHealth(float Amount)
+{
+	Health = FMath::Clamp(Health + Amount, 0.0f, MaxHealth);
 }
