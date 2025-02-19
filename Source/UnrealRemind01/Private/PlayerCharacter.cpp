@@ -1,10 +1,14 @@
 
 #include "PlayerCharacter.h"
 #include "MainPlayerController.h"
+#include "MainGameState.h"
 #include "EnhancedInputComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFrameWork/CharacterMovementComponent.h"//GetCharacterMovement 가져오기 위한 헤더파일
+#include "Components/WidgetComponent.h"
+#include "Components/TextBlock.h"
+#include "Components/ProgressBar.h"
 
 
 APlayerCharacter::APlayerCharacter()
@@ -22,8 +26,12 @@ APlayerCharacter::APlayerCharacter()
 	SpringArmComp->bUsePawnControlRotation = true;
 
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-	CameraComp->SetupAttachment(SpringArmComp,USpringArmComponent::SocketName);//스프링 암의 소켓 위치에 부착
+	CameraComp->SetupAttachment(SpringArmComp, USpringArmComponent::SocketName);//스프링 암의 소켓 위치에 부착
 	CameraComp->bUsePawnControlRotation = false;
+
+	OverheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
+	OverheadWidget->SetupAttachment(GetMesh());
+	OverheadWidget->SetWidgetSpace(EWidgetSpace::Screen);
 
 	NormalSpeed = 600.0f;
 	SprintMultiplier = 1.7f;
@@ -105,12 +113,19 @@ float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 {
 	float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	Health = FMath::Clamp(Health - DamageAmount, 0.0f, MaxHealth);
+	UpdateOverheadHP();
 
 	if (Health <= 0.0f)
 	{
 		OnDeath();
 	}
 	return ActualDamage;
+}
+
+void APlayerCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	UpdateOverheadHP();
 }
 
 void APlayerCharacter::Move(const FInputActionValue& value)
@@ -176,7 +191,13 @@ void APlayerCharacter::StopSprint(const FInputActionValue& value)
 
 void APlayerCharacter::OnDeath()
 {
+	AMainGameState* MainGameState = GetWorld() ? GetWorld()->GetGameState<AMainGameState>() : nullptr;
+	if (MainGameState)
+	{
+		MainGameState->OnGameOver();
+	}
 }
+
 
 float APlayerCharacter::GetHealth() const
 {
@@ -186,4 +207,24 @@ float APlayerCharacter::GetHealth() const
 void APlayerCharacter::AddHealth(float Amount)
 {
 	Health = FMath::Clamp(Health + Amount, 0.0f, MaxHealth);
+	UpdateOverheadHP();
+}
+
+void APlayerCharacter::UpdateOverheadHP()
+{
+	if (!OverheadWidget) return;
+
+	UUserWidget* OverheadWidgetInstance = OverheadWidget->GetUserWidgetObject();
+	if (!OverheadWidgetInstance)return;
+
+	if (UProgressBar* HPBar = Cast<UProgressBar>(OverheadWidgetInstance->GetWidgetFromName(TEXT("OverheadHPBar"))))
+	{
+		const float HPpercent = (MaxHealth > 0.f) ? Health / MaxHealth : 0.f;
+		HPBar->SetPercent(HPpercent);
+
+		if (HPpercent < 0.3f)
+		{
+			HPBar->SetFillColorAndOpacity(FLinearColor::Red);
+		}
+	}
 }

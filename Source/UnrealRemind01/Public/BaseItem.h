@@ -26,7 +26,12 @@ protected:
 	USphereComponent* Collision;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item|Component")
 	UStaticMeshComponent* StaticMesh;
-	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item|Effect")
+	UParticleSystem* PickupParticle;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item|Effect")
+	USoundBase* PickupSound;
+
+
 	virtual void OnItemOverlap(
 		UPrimitiveComponent* OverlappedComp,
 		AActor* OtherActor,

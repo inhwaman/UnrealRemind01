@@ -5,6 +5,10 @@
 #include "GameFramework/GameState.h"
 #include "MainGameState.generated.h"
 
+class ASpawnVolume;
+class AMainPlayerController;
+class UMainGameInstance;
+
 UCLASS()
 class UNREALREMIND01_API AMainGameState : public AGameState
 {
@@ -22,14 +26,24 @@ public:
 	int32 CollectedCoinCount;
 	int32 MaxLevel;
 	UPROPERTY(visibleAnywhere, BlueprintReadOnly, Category = "Level")
-	float LevelDuration;
-	UPROPERTY(visibleAnywhere, BlueprintReadOnly, Category = "Level")
 	int32 CurrentLevelIndex;
+	//Wave
+	UPROPERTY(visibleAnywhere, BlueprintReadOnly, Category = "Wave")
+	int32 CurrentWaveIndex;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Wave")
+	int32 MaxWave;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Wave")
+	float WaveDuration;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Wave")
+	TArray<int32> CoinsToSpawnPerWave;
+	UPROPERTY()
+	TArray<AActor*> CurrentWaveItems;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Level")
 	TArray<FName> LevelMapNames;
 
-	FTimerHandle LevelTimerHandle;
+	FTimerHandle WaveTimerHandle;
+	FTimerHandle HUDUpdateTimerHandle;
 
 	UFUNCTION(blueprintPure, Category = "Score")
 	int32 GetScore() const;
@@ -40,7 +54,15 @@ public:
 
 
 	void StartLevel();
-	void OnLevelTimeUp();
 	void OnCoinCollected();
 	void EndLevel();
+	void UpdateHUD();
+
+	void StartWave();
+	void EndWave();
+	void OnWaveTimeUp();
+
+	ASpawnVolume* GetSpawnVolume()const;
+	AMainPlayerController* GetMainPlayerController()const;
+	UMainGameInstance* GetMainGameInstance()const;
 };

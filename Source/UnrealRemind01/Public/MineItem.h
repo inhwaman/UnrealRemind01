@@ -15,7 +15,7 @@ class UNREALREMIND01_API AMineItem : public ABaseItem
 	GENERATED_BODY()
 public:
 	AMineItem();
-
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
 	USphereComponent* ExplosionCollision;
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category = "Mine")
@@ -24,7 +24,13 @@ public:
 	float ExplosionRadius;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mine")
 	int32 ExplosionDamage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+	UParticleSystem* ExplosionParticle;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+	USoundBase* ExposionSound;
 
+
+	bool bHasExploded;
 	FTimerHandle ExplosionTimerHandle;
 
 	virtual void ActivateItem(AActor* Activator) override;

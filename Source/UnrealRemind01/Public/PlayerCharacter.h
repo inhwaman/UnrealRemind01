@@ -7,6 +7,7 @@
 
 class USpringArmComponent;
 class UCameraComponent;
+class UWidgetComponent;
 //입력 바인딩 추가
 struct FInputActionValue;
 
@@ -31,6 +32,8 @@ public:
 	USpringArmComponent* SpringArmComp;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	UCameraComponent* CameraComp;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
+	UWidgetComponent* OverheadWidget;
 	
 	//이동속도
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Speed")
@@ -47,7 +50,8 @@ public:
 		struct FDamageEvent const& DamageEvent,
 		AController* EventInstigator,
 		AActor* DamageCauser)override;
-	
+	virtual void BeginPlay() override;
+
 	UFUNCTION()
 	void Move(const FInputActionValue& value);
 	UFUNCTION()
@@ -63,5 +67,5 @@ public:
 	
 	void OnDeath();
 
-
+	void UpdateOverheadHP();
 };
