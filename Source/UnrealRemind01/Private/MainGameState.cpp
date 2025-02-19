@@ -12,7 +12,7 @@ AMainGameState::AMainGameState()
 	Score = 0;
 	SpawnedCoinCount = 0;
 	CollectedCoinCount = 0;
-	LevelDuration = 30.0f;
+	LevelDuration = 10.0f;
 	CurrentLevelIndex = 0;
 	MaxLevel = 2;
 }
@@ -85,6 +85,7 @@ void AMainGameState::StartLevel()
 
 void AMainGameState::OnLevelTimeUp()
 {
+	UE_LOG(LogTemp, Warning, TEXT("Level Time Up!"));
 	EndLevel();
 }
 
@@ -99,29 +100,36 @@ void AMainGameState::OnCoinCollected()
 
 void AMainGameState::EndLevel()
 {
+	UE_LOG(LogTemp, Warning, TEXT("EndLevel Called!"));
 	GetWorldTimerManager().ClearTimer(LevelTimerHandle);
+
+	CurrentLevelIndex++;
+	UE_LOG(LogTemp, Warning, TEXT("CurrentLevelIndex: %d, MaxLevel: %d"), CurrentLevelIndex, MaxLevel);
 
 	if (UGameInstance* GameInstance = GetGameInstance())
 	{
 		UMainGameInstance* MainGameInstance = Cast<UMainGameInstance>(GameInstance);
 		if (MainGameInstance)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("AddScore Called!"));
 			AddScore(Score);
-			CurrentLevelIndex++;
 			MainGameInstance->CurrentLevelIndex = CurrentLevelIndex;
 		}
 	}
-	if (CurrentLevelIndex >= MaxLevel-1)
+	if (CurrentLevelIndex >= MaxLevel)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("OnGameOver Called!"));
 		OnGameOver();
 		return;
 	}
 	if (LevelMapNames.IsValidIndex(CurrentLevelIndex))
 	{
+		UE_LOG(LogTemp, Warning, TEXT("NextLevel Called!"));
 		UGameplayStatics::OpenLevel(GetWorld(), LevelMapNames[CurrentLevelIndex]);
 	}
 	else
 	{
+		UE_LOG(LogTemp, Warning, TEXT("LevelMapNames is invalid for CurrentLevelIndex: %d"), CurrentLevelIndex);
 		OnGameOver();
 	}
 }

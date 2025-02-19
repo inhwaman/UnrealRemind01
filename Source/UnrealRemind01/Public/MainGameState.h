@@ -26,7 +26,7 @@ public:
 	UPROPERTY(visibleAnywhere, BlueprintReadOnly, Category = "Level")
 	int32 CurrentLevelIndex;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Level")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level")
 	TArray<FName> LevelMapNames;
 
 	FTimerHandle LevelTimerHandle;
